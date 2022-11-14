@@ -3,6 +3,7 @@ import cors from "cors";
 import { router } from "./router/router.js";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
+import "./ldap/ldap.js";
 const app = express();
 // app.use((req, res, next) => {
 //   req.hostname == "192.168.8.111" ? next() : res.send("Access Denied");
