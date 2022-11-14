@@ -20,7 +20,7 @@ accountRouter.post("/login", async (req, res) => {
     user_SQL["ldp"] = false;
     users[user_SQL.id] = user_SQL;
     res.send({
-      message: "success",
+      status: true,
     });
   } else {
     let ldp = await LDAP.authenticate(username, password);
@@ -36,14 +36,14 @@ accountRouter.post("/login", async (req, res) => {
         ldp["ldp"] = true;
         users[ldp[1].userPrincipalName] = ldp;
         res.send({
-          message: "success",
+          status: true,
         });
       } else {
         let ldp_sql_reg = await sql(`insert into Users () values ()`);
       }
     } else {
       return res.status(404).send({
-        message: "user not found",
+        status: true,
       });
     }
   }
