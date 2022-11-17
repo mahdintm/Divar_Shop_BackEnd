@@ -34,3 +34,10 @@ start();
 export class Users {
   static new_id = () => {};
 }
+
+export class Product_Class {
+  static new_Product = async (data) => {
+    Product_data.push(data);
+  };
+}
+// ["http://localhost:3000/_nuxt/static/img/Item1.png","http://localhost:3000/_nuxt/static/img/Item1.png","http://localhost:3000/_nuxt/static/img/Item1.png","http://localhost:3000/_nuxt/static/img/Item1.png"]
