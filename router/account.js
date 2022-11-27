@@ -9,7 +9,7 @@ const config = process.env;
 
 accountRouter.post("/login", async (req, res) => {
   const { username, password } = req.body;
-  const user_SQL = await sql(`select * from Users where username="${username}"`);
+  const user_SQL = await sql(`select * from Users where username="${username}" and ldp=${false}`);
   if (user_SQL != "" && password == user_SQL.password) {
     const token = jwt.sign({ id: user_SQL.id }, config.TOKEN_KEY);
     res.cookie("jwt", token, {
@@ -25,21 +25,34 @@ accountRouter.post("/login", async (req, res) => {
   } else {
     let ldp = await LDAP.authenticate(username, password);
     if (ldp[0]) {
-      let ldp_sql = await sql(`select * from Users where username="${ldp[0].userPrincipalName}"`);
+      let ldp_sql = await sql(`select * from Users where username="${ldp[1].mail}"`);
+      console.log(ldp_sql);
       if (ldp_sql != "") {
-        const token = jwt.sign({ id: ldp[1].userPrincipalName }, config.TOKEN_KEY);
+        const token = jwt.sign({ id: ldp_sql.id }, config.TOKEN_KEY);
         res.cookie("jwt", token, {
           httpOnly: true,
           maxAge: 24 * 60 * 60 * 1000, // 1 day
         });
-        ldp["token"] = token;
-        ldp["ldp"] = true;
-        users[ldp[1].userPrincipalName] = ldp;
+        ldp_sql["token"] = token;
+        ldp_sql["ldp"] = true;
+        users[ldp_sql.id] = ldp;
         res.send({
           status: true,
         });
       } else {
-        let ldp_sql_reg = await sql(`insert into Users () values ()`);
+        let ldp_sql_reg = await sql(`insert into Users (username,email,acl,password,ldp) values ("${ldp[1].mail}","${ldp[1].mail}","0","${Date.now()}",'1')`);
+        let ldp_sql = await sql(`select * from Users where username="${ldp[1].mail}"`);
+        const token = jwt.sign({ id: ldp_sql.id }, config.TOKEN_KEY);
+        res.cookie("jwt", token, {
+          httpOnly: true,
+          maxAge: 24 * 60 * 60 * 1000, // 1 day
+        });
+        ldp_sql["token"] = token;
+        ldp_sql["ldp"] = true;
+        users[ldp_sql.id] = ldp;
+        res.send({
+          status: true,
+        });
       }
     } else {
       return res.status(404).send({
@@ -59,7 +72,6 @@ accountRouter.get("/user", async (req, res) => {
   try {
     const cookie = req.cookies["jwt"];
     const claims = jwt.verify(cookie, config.TOKEN_KEY);
-    // console.log(claims);
     if (!claims) {
       return res.status(401).send({
         auth: false,
@@ -94,5 +106,5 @@ accountRouter.get("/isUser", async (req, res) => {
       auth: false,
     });
   }
-  res.status(200).json({ id: claims.id });
+  res.status(200).json(await sql(`select * from Users where id="${claims.id}"`));
 });

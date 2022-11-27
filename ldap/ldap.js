@@ -1,30 +1,36 @@
 import ActiveDirectory from "activedirectory";
 var config = {
-  url: "ldap://172.16.17.130",
-  baseDN: "dc=versil,dc=inc",
-  bindDN: "nodeJS@versil.inc",
-  bindCredentials: "Yecgaa2new3mahdi@@",
+  url: "ldap://10.254.1.25",
+  baseDN: "dc=agahpardazan,dc=ir",
+  bindDN: "auth@agahpardazan.ir",
+  bindCredentials: "ICT159753ict",
 };
 var ad = new ActiveDirectory(config);
-var username = "mahdi.nemati@versil.inc";
-var password = "Waezakmi2";
+var username = "mahdinemati@agahpardazan.ir";
+var password = "Afzllqll2@";
 export class LDAP {
   static authenticate = (user, pass) => {
     return new Promise((resolve, error) => {
-      ad.authenticate(user, pass, async (err, auth) => {
-        if (err) {
-          resolve([false]);
+      ad.find(`mail=${user}`, function (err, results) {
+        if (err || !results) {
+          console.log("ERROR: " + JSON.stringify(err));
+          return;
         }
-        if (auth) {
-          ad.getGroupMembershipForUser(user, (err, adUser) => {
-            resolve([auth, adUser]);
-          });
-        } else {
-          resolve([false]);
-        }
+        ad.authenticate(results.users[0].userPrincipalName, pass, async (err, auth) => {
+          if (err) {
+            resolve([false]);
+          }
+          if (auth) {
+            ad.findUser(results.users[0].userPrincipalName, (err, adUser) => {
+              resolve([auth, adUser]);
+            });
+          } else {
+            resolve([false]);
+          }
+        });
       });
     });
   };
 }
 
-// console.log(await LDAP.authenticate(username, password));
+console.log(await LDAP.authenticate("masoumeh@divar.ir", "123123aA"));
