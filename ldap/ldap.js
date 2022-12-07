@@ -33,4 +33,4 @@ export class LDAP {
   };
 }
 
-console.log(await LDAP.authenticate("masoumeh@divar.ir", "123123aA"));
+// console.log(await LDAP.authenticate("masoumeh@divar.ir", "123123aA"));

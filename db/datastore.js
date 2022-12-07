@@ -1,6 +1,7 @@
 import { sql } from "./mysql.js";
 export var Category_data = [];
 export var Product_data = [];
+export var Setting = [];
 export var users = {};
 async function start() {
   let Category_data_ = await sql(`select * from Category`);
@@ -25,6 +26,12 @@ async function start() {
     element.options = JSON.parse(element.options);
     Product_data.push(element);
   });
+
+  let Setting_ = await sql(`select * from Settings`);
+  Setting_.forEach((element) => {
+    element.value = JSON.parse(element.value);
+    Setting.push(element);
+  });
 }
 start();
 
@@ -32,11 +39,35 @@ export class Users {
   static new_id = () => {};
 }
 
+export class Settings {
+  static get = async (name) => {
+    for (let i = 0; i < Setting.length; i++) {
+      if (Setting[i].name == name) {
+        return Setting[i].value;
+      }
+    }
+  };
+  static set = async (name, value) => {
+    for (let i = 0; i < Setting.length; i++) {
+      if (Setting[i].name == name) {
+        await sql(`update Settings set value='${JSON.stringify(value)}' where id="${Setting[i].id}"`);
+        return (Setting[i].value = value);
+      }
+    }
+  };
+}
+
 export class Product_Class {
   static new_Product = async (data) => {
     Product_data.push(data);
   };
-
+  static setAllData = async (id, data) => {
+    for (let i = 0; i < Product_data.length; i++) {
+      if (Product_data[i].id == id) {
+        Product_data[i] = data;
+      }
+    }
+  };
   static getAllProducts = async () => {
     return Product_data;
   };
