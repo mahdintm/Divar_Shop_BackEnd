@@ -12,7 +12,7 @@ app.use(cookieParser());
 app.use(
   cors({
     credentials: true,
-    origin: ["http://localhost:3000", "http://192.168.8.111:3000", "http://192.168.92.243:3000", "http://192.168.109.58:3000"],
+    origin: ["http://localhost:3000", "http://shop.agahpardazan.ir", "https://shop.agahpardazan.ir", "http://172.20.10.16"],
   })
 );
 app.use(bodyParser.urlencoded({ extended: false }));

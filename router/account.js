@@ -10,7 +10,8 @@ const config = process.env;
 accountRouter.post("/login", async (req, res) => {
   const { username, password } = req.body;
   const user_SQL = await sql(`select * from Users where username="${username}" and ldp=${false}`);
-  if (user_SQL != "" && password == user_SQL.password) {
+  console.log(user_SQL)
+  if (user_SQL  && password == user_SQL.password) {
     await sql(`update Users set lastLogin="${Date.now()}" where id="${user_SQL.id}"`);
     const token = jwt.sign({ id: user_SQL.id }, config.TOKEN_KEY);
     res.cookie("jwt", token, {
@@ -25,9 +26,12 @@ accountRouter.post("/login", async (req, res) => {
     });
   } else {
     let ldp = await LDAP.authenticate(username, password);
+    console.log(ldp)
     if (ldp[0]) {
       let ldp_sql = await sql(`select * from Users where username="${ldp[1].mail}"`);
-      if (ldp_sql != "") {
+    console.log("test",ldp_sql)
+      if (ldp_sql) {
+        console.log(1)
         await sql(`update Users set lastLogin="${Date.now()}" where id=${ldp_sql.id}`);
         const token = jwt.sign({ id: ldp_sql.id }, config.TOKEN_KEY);
         res.cookie("jwt", token, {
@@ -41,9 +45,10 @@ accountRouter.post("/login", async (req, res) => {
           status: true,
         });
       } else {
-        let ldp_sql_reg = await sql(`insert into Users (username,email,acl,password,ldp,firstLogin) values ("${ldp[1].mail}","${ldp[1].mail}","0","${Date.now()}",'1',"${Date.now()}")`);
+        console.log(2)
+
+        let ldp_sql_reg = await sql(`insert into Users (username,email,acl,password,ldp,firstLogin,lastLogin) values ("${ldp[1].mail}","${ldp[1].mail}","0","${Date.now()}",'1',"${Date.now()}","${Date.now()}")`);
         let ldp_sql = await sql(`select * from Users where username="${ldp[1].mail}"`);
-        await sql(`update Users set lastLogin="${Date.now()}" where id=${ldp_sql.id}`);
         const token = jwt.sign({ id: ldp_sql.id }, config.TOKEN_KEY);
         res.cookie("jwt", token, {
           httpOnly: true,

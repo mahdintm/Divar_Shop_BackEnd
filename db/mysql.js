@@ -12,7 +12,7 @@ const pool_Main = createPool({
 export async function sql(sql_command) {
   try {
     const [rows_Main, fields_Main] = await pool_Main.promise().query(sql_command);
-    if (rows_Main.length == 1) {
+    if (rows_Main.length <= 1) {
       return rows_Main[0];
     } else {
       return rows_Main;
