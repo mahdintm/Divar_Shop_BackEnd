@@ -1,6 +1,6 @@
 import ActiveDirectory from "activedirectory";
 var config = {
-  url: "ldap://keyam.agahpardazan.ir",
+  url: "ldap://",
   baseDN: "dc=agahpardazan,dc=ir",
   bindDN: "auth@agahpardazan.ir",
   bindCredentials: "ICT159753ict",
