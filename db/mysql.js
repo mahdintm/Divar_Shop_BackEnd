@@ -22,6 +22,15 @@ export async function sql(sql_command) {
   }
 }
 
+export async function sql_arr(sql_command) {
+  try {
+    const [rows_Main, fields_Main] = await pool_Main.promise().query(sql_command);
+    return rows_Main;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 // // create the connection to database
 // const pool_Log = createPool({
 //   host: process.env.Host_MYSQL_Log,

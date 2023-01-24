@@ -85,7 +85,6 @@ export class Product_Class {
       if (Product_data[i].id == id) {
         await sql(`UPDATE Products SET active=${state} WHERE id="${id}"`);
         Product_data[i].active = JSON.parse(state);
-        return console.log(5, Product_data[i].active);
       }
     }
   };
