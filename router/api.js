@@ -1,7 +1,7 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import { Category_data, Product_Class, Product_data, Settings } from "../db/datastore.js";
-import { sql } from "../db/mysql.js";
+import { sql, sql_arr } from "../db/mysql.js";
 export const apiRouter = express.Router();
 const config = process.env;
 
@@ -31,13 +31,12 @@ apiRouter.get("/category", (req, res) => {
   }
 });
 apiRouter.get("/user", async (req, res) => {
-  console.log(req.query.id);
   res.send(await sql(`select * from Users where id="${req.query.id}"`));
 });
 
 apiRouter.get("/RegisterProduct", async (req, res) => {
   let sql_res = await sql(`select * from Suggestions where Product_id="${req.query.Product_id}" and User_id="${req.query.User_id}"`);
-  if (sql_res != "") {
+  if (sql_res) {
     await sql(`update Suggestions set Price="${req.query.User_Price}" where Product_id="${req.query.Product_id}" and User_id="${req.query.User_id}"`);
     res.send({ res: true });
   } else {
@@ -48,23 +47,10 @@ apiRouter.get("/RegisterProduct", async (req, res) => {
 apiRouter.get("/removeRegisterProduct", async (req, res) => {
   await sql(`delete from Suggestions where Product_id="${req.query.Product_id}" and User_id="${req.query.User_id}"`);
   res.send({ res: true });
-
-  // Product_data.forEach(async (element) => {
-  //   if (element.id == req.query.Product_id) {
-  //     if (element.registrations.find((a) => a == req.query.User_id)) {
-  //       var index = await element.registrations.indexOf(req.query.User_id);
-  //       if (index != -1) element.registrations.splice(index, 1);
-  //       await sql(`update Products set registrations='${JSON.stringify(element.registrations)}' where id="${element.id}"`);
-  //       res.send({ res: true });
-  //     } else {
-  //       res.send({ res: false });
-  //     }
-  //   }
-  // });
 });
 apiRouter.get("/checkRegisterProduct", async (req, res) => {
   let sql_res = await sql(`select * from Suggestions where Product_id="${req.query.Product_id}" and User_id="${req.query.User_id}"`);
-  if (sql_res != "") {
+  if (sql_res) {
     res.send(true);
   } else {
     res.send(false);
@@ -152,4 +138,15 @@ apiRouter.get("/RunMozaiede", async (req, res) => {
   } catch (error) {
     res.send([false, error]);
   }
+});
+
+apiRouter.get("/count_product_register", async (req, res) => {
+  let a = await sql(`select count(*) from Suggestions where Product_id="${req.query.productid}"`);
+  res.send({ count: a["count(*)"] });
+});
+
+apiRouter.get("/getRegisters", async (req, res) => {
+  let ress = await sql_arr(`select * from Suggestions where Product_id="${req.query.id}"`);
+  let ress_ = ress.sort((a, b) => b.Price - a.Price);
+  res.send(ress_);
 });
