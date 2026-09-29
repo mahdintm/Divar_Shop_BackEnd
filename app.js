@@ -18,4 +18,5 @@ app.use(
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(router);
-app.listen(3001, () => console.log(`Server running in BackEnd mode on port ${3001}`));
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => console.log(`Server running in BackEnd mode on port ${PORT}`));
