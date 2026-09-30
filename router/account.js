@@ -94,18 +94,26 @@ accountRouter.get("/user", async (req, res) => {
 });
 
 accountRouter.get("/isUser", async (req, res) => {
-  const cookie = req.cookies["jwt"];
-  const claims = jwt.verify(cookie, config.TOKEN_KEY);
-  if (!claims) {
-    return res.status(401).send({
-      auth: false,
-    });
-  }
-  if (!users[claims.id]) {
+  try {
+    const cookie = req.cookies["jwt"];
+    const claims = jwt.verify(cookie, config.TOKEN_KEY);
+    if (!claims) {
+      res.cookie("jwt", "", { maxAge: 0 });
+      return res.status(401).send({
+        auth: false,
+      });
+    }
+    if (!users[claims.id]) {
+      res.cookie("jwt", "", { maxAge: 0 });
+      return res.status(401).send({
+        auth: false,
+      });
+    }
+    res.status(200).json(await sql(`select * from Users where id="${claims.id}"`));
+  } catch (e) {
     res.cookie("jwt", "", { maxAge: 0 });
     return res.status(401).send({
       auth: false,
     });
   }
-  res.status(200).json(await sql(`select * from Users where id="${claims.id}"`));
 });
