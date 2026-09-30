@@ -19,8 +19,13 @@ export class LDAP {
           return reject(err || new Error("LDAP user lookup returned no results"));
         }
 
+        const user = results?.users?.[0];
+        if (!user?.userPrincipalName) {
+          return resolve([false]);
+        }
+
         ad.authenticate(
-          results.users[0].userPrincipalName,
+          user.userPrincipalName,
           pass,
           async (err, auth) => {
             if (err) {
