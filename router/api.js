@@ -114,7 +114,10 @@ apiRouter.get("/changeStatusPost", async (req, res) => {
 });
 
 apiRouter.get("/registerTime", async (req, res) => {
-  let RG_ST = await Settings.get("RegisterTime");
+  const RG_ST = await Settings.get("RegisterTime");
+  if (!RG_ST) {
+    return res.sendStatus(500);
+  }
   let Time = Date.now();
   if (RG_ST.start <= Time && RG_ST.end >= Time) {
     res.send(true);
@@ -123,7 +126,10 @@ apiRouter.get("/registerTime", async (req, res) => {
   }
 });
 apiRouter.get("/getRegisterTime", async (req, res) => {
-  let RG_ST = await Settings.get("RegisterTime");
+  const RG_ST = await Settings.get("RegisterTime");
+  if (!RG_ST) {
+    return res.sendStatus(500);
+  }
   res.send(RG_ST);
 });
 apiRouter.get("/setRegisterTime_End", async (req, res) => {
@@ -136,6 +142,9 @@ apiRouter.get("/setRegisterTime_End", async (req, res) => {
     return res.sendStatus(500);
   }
   const RG_ST_ = await Settings.set("RegisterTime", { start: RG_ST.start, end: time });
+  if (!RG_ST_) {
+    return res.sendStatus(500);
+  }
   res.send(RG_ST_);
 });
 apiRouter.get("/setRegisterTime_Start", async (req, res) => {
@@ -148,6 +157,9 @@ apiRouter.get("/setRegisterTime_Start", async (req, res) => {
     return res.sendStatus(500);
   }
   const RG_ST_ = await Settings.set("RegisterTime", { start: time, end: RG_ST.end });
+  if (!RG_ST_) {
+    return res.sendStatus(500);
+  }
   res.send(RG_ST_);
 });
 apiRouter.get("/getAllUsers", async (req, res) => {
