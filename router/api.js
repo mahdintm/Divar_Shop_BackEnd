@@ -149,7 +149,8 @@ apiRouter.get("/RunMozaiede", async (req, res) => {
     }
     res.send([true]);
   } catch (error) {
-    res.send([false, error]);
+    console.error("Auction processing failed:", error);
+    res.send([false]);
   }
 });
 apiRouter.get("/count_product_register", async (req, res) => {
