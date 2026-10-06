@@ -147,6 +147,9 @@ apiRouter.get("/count_product_register", async (req, res) => {
 
 apiRouter.get("/getRegisters", async (req, res) => {
   let ress = await sql_arr(`select * from Suggestions where Product_id="${req.query.id}"`);
+  if (!ress) {
+    return res.sendStatus(500);
+  }
   let ress_ = ress.sort((a, b) => b.Price - a.Price);
   res.send(ress_);
 });
