@@ -31,7 +31,12 @@ apiRouter.get("/category", (req, res) => {
   res.send(Category_data);
 });
 apiRouter.get("/user", async (req, res) => {
-  res.send(await sql(`select * from Users where id="${req.query.id}"`));
+  res.send(
+    await sql(
+      "select id, username, email, acl, profile, firstname, lastname, phonenumber, ldp, firstLogin, lastLogin from Users where id = ?",
+      [req.query.id]
+    )
+  );
 });
 
 apiRouter.get("/RegisterProduct", async (req, res) => {
