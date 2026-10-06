@@ -90,13 +90,14 @@ export class Product_Class {
     }
   };
 
-  static remove = (id) => {
-    Product_data.forEach(async (element) => {
+  static remove = async (id) => {
+    for (const element of Product_data) {
       if (element.id == id) {
         await sql(`DELETE FROM Products WHERE id="${id}"`);
         var index = Product_data.indexOf(element);
         if (index != -1) Product_data.splice(index, 1);
+        return;
       }
-    });
+    }
   };
 }

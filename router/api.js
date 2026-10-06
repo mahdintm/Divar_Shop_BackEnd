@@ -71,7 +71,7 @@ apiRouter.post("/postEdit", async (req, res) => {
   res.send({ id: data_.id });
 });
 apiRouter.get("/deletePost", async (req, res) => {
-  Product_Class.remove(req.query.id);
+  await Product_Class.remove(req.query.id);
   res.send(true);
 });
 
