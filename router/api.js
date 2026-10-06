@@ -174,8 +174,13 @@ apiRouter.get("/setRegisterTime_Start", async (req, res) => {
   res.send(RG_ST_);
 });
 apiRouter.get("/getAllUsers", async (req, res) => {
-  let users__ = await sql(`select id,username,email,acl,profile,firstname,lastname,phonenumber,ldp,firstLogin,lastLogin from Users`);
-  res.send(users__);
+  const users = await sql_arr(
+    "select id,username,email,acl,profile,firstname,lastname,phonenumber,ldp,firstLogin,lastLogin from Users"
+  );
+  if (users === undefined) {
+    return res.sendStatus(500);
+  }
+  return res.send(users);
 });
 
 apiRouter.get("/RunMozaiede", async (req, res) => {
