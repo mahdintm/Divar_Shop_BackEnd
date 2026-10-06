@@ -35,21 +35,21 @@ apiRouter.get("/user", async (req, res) => {
 });
 
 apiRouter.get("/RegisterProduct", async (req, res) => {
-  let sql_res = await sql(`select * from Suggestions where Product_id="${req.query.Product_id}" and User_id="${req.query.User_id}"`);
+  let sql_res = await sql("select * from Suggestions where Product_id = ? and User_id = ?", [req.query.Product_id, req.query.User_id]);
   if (sql_res) {
-    await sql(`update Suggestions set Price="${req.query.User_Price}" where Product_id="${req.query.Product_id}" and User_id="${req.query.User_id}"`);
+    await sql("update Suggestions set Price = ? where Product_id = ? and User_id = ?", [req.query.User_Price, req.query.Product_id, req.query.User_id]);
     res.send({ res: true });
   } else {
-    await sql(`insert into Suggestions (User_id,Product_id,Price,Date) values ("${req.query.User_id}","${req.query.Product_id}","${req.query.User_Price}","${Date.now()}")`);
+    await sql("insert into Suggestions (User_id, Product_id, Price, Date) values (?, ?, ?, ?)", [req.query.User_id, req.query.Product_id, req.query.User_Price, Date.now()]);
     res.send({ res: true });
   }
 });
 apiRouter.get("/removeRegisterProduct", async (req, res) => {
-  await sql(`delete from Suggestions where Product_id="${req.query.Product_id}" and User_id="${req.query.User_id}"`);
+  await sql("delete from Suggestions where Product_id = ? and User_id = ?", [req.query.Product_id, req.query.User_id]);
   res.send({ res: true });
 });
 apiRouter.get("/checkRegisterProduct", async (req, res) => {
-  let sql_res = await sql(`select * from Suggestions where Product_id="${req.query.Product_id}" and User_id="${req.query.User_id}"`);
+  let sql_res = await sql("select * from Suggestions where Product_id = ? and User_id = ?", [req.query.Product_id, req.query.User_id]);
   if (sql_res) {
     res.send(true);
   } else {
@@ -147,12 +147,12 @@ apiRouter.get("/RunMozaiede", async (req, res) => {
 });
 
 apiRouter.get("/count_product_register", async (req, res) => {
-  let a = await sql(`select count(*) from Suggestions where Product_id="${req.query.productid}"`);
+  let a = await sql("select count(*) from Suggestions where Product_id = ?", [req.query.productid]);
   res.send({ count: a["count(*)"] });
 });
 
 apiRouter.get("/getRegisters", async (req, res) => {
-  let ress = await sql_arr(`select * from Suggestions where Product_id="${req.query.id}"`);
+  let ress = await sql_arr("select * from Suggestions where Product_id = ?", [req.query.id]);
   if (!ress) {
     return res.sendStatus(500);
   }
