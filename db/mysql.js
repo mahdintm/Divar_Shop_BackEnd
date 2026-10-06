@@ -25,9 +25,9 @@ export async function sql(sql_command, params = []) {
   }
 }
 
-export async function sql_arr(sql_command) {
+export async function sql_arr(sql_command, params = []) {
   try {
-    const [rows_Main, fields_Main] = await pool_Main.promise().query(sql_command);
+    const [rows_Main, fields_Main] = await pool_Main.promise().query(sql_command, params);
     return rows_Main;
   } catch (error) {
     console.log(error);
