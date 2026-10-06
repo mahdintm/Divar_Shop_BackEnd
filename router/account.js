@@ -109,7 +109,12 @@ accountRouter.get("/isUser", async (req, res) => {
         auth: false,
       });
     }
-    res.status(200).json(await sql(`select * from Users where id="${claims.id}"`));
+    res.status(200).json(
+      await sql(
+        "select id, username, email, acl, profile, firstname, lastname, phonenumber, ldp, firstLogin, lastLogin from Users where id = ?",
+        [claims.id]
+      )
+    );
   } catch (e) {
     res.cookie("jwt", "", { maxAge: 0 });
     return res.status(401).send({
