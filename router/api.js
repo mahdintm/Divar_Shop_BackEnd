@@ -59,14 +59,20 @@ apiRouter.get("/checkRegisterProduct", async (req, res) => {
 apiRouter.post("/postADS", async (req, res) => {
   let data_ = req.body;
   let db_sql = await sql(`insert into Products (category_id, title, description, price, date, imgs, options,active,code)values('${req.body.category_id}','${req.body.title}','${req.body.description}','${req.body.price}','${req.body.date}','${JSON.stringify(req.body.imgs)}','${JSON.stringify(req.body.options)}',${req.body.active},"${req.body.code}")`);
+  if (!db_sql) {
+    return res.sendStatus(500);
+  }
   data_.registrations = [];
-  data_.id = await db_sql.insertId;
+  data_.id = db_sql.insertId;
   Product_Class.new_Product(data_);
   res.send({ id: db_sql.insertId });
 });
 apiRouter.post("/postEdit", async (req, res) => {
   let data_ = req.body;
   let db_sql = await sql(`update Products set category_id='${req.body.category_id}',title='${req.body.title}', description='${req.body.description}', price='${req.body.price}', imgs='${JSON.stringify(req.body.imgs)}', options='${JSON.stringify(req.body.options)}',active=${req.body.active},code="${req.body.code}" where id="${req.body.id}"`);
+  if (!db_sql) {
+    return res.sendStatus(500);
+  }
   Product_Class.setAllData(data_.id, data_);
   res.send({ id: data_.id });
 });
