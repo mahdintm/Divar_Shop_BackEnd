@@ -46,15 +46,24 @@ apiRouter.get("/user", async (req, res) => {
 apiRouter.get("/RegisterProduct", async (req, res) => {
   let sql_res = await sql("select * from Suggestions where Product_id = ? and User_id = ?", [req.query.Product_id, req.query.User_id]);
   if (sql_res) {
-    await sql("update Suggestions set Price = ? where Product_id = ? and User_id = ?", [req.query.User_Price, req.query.Product_id, req.query.User_id]);
+    const writeResult = await sql("update Suggestions set Price = ? where Product_id = ? and User_id = ?", [req.query.User_Price, req.query.Product_id, req.query.User_id]);
+    if (!writeResult) {
+      return res.sendStatus(500);
+    }
     res.send({ res: true });
   } else {
-    await sql("insert into Suggestions (User_id, Product_id, Price, Date) values (?, ?, ?, ?)", [req.query.User_id, req.query.Product_id, req.query.User_Price, Date.now()]);
+    const writeResult = await sql("insert into Suggestions (User_id, Product_id, Price, Date) values (?, ?, ?, ?)", [req.query.User_id, req.query.Product_id, req.query.User_Price, Date.now()]);
+    if (!writeResult) {
+      return res.sendStatus(500);
+    }
     res.send({ res: true });
   }
 });
 apiRouter.get("/removeRegisterProduct", async (req, res) => {
-  await sql("delete from Suggestions where Product_id = ? and User_id = ?", [req.query.Product_id, req.query.User_id]);
+  const writeResult = await sql("delete from Suggestions where Product_id = ? and User_id = ?", [req.query.Product_id, req.query.User_id]);
+  if (!writeResult) {
+    return res.sendStatus(500);
+  }
   res.send({ res: true });
 });
 apiRouter.get("/checkRegisterProduct", async (req, res) => {
