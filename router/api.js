@@ -35,12 +35,17 @@ apiRouter.get("/category", (req, res) => {
   res.send(Category_data);
 });
 apiRouter.get("/user", async (req, res) => {
-  res.send(
-    await sql(
-      "select id, username, email, acl, profile, firstname, lastname, phonenumber, ldp, firstLogin, lastLogin from Users where id = ?",
-      [req.query.id]
-    )
+  const users = await sql_arr(
+    "select id, username, email, acl, profile, firstname, lastname, phonenumber, ldp, firstLogin, lastLogin from Users where id = ?",
+    [req.query.id]
   );
+  if (users === undefined) {
+    return res.sendStatus(500);
+  }
+  if (users.length === 0) {
+    return res.sendStatus(404);
+  }
+  return res.send(users[0]);
 });
 
 apiRouter.get("/RegisterProduct", async (req, res) => {
