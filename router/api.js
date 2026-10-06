@@ -222,8 +222,11 @@ apiRouter.get("/RunMozaiede", async (req, res) => {
   }
 });
 apiRouter.get("/count_product_register", async (req, res) => {
-  let a = await sql("select count(*) from Suggestions where Product_id = ?", [req.query.productid]);
-  res.send({ count: a["count(*)"] });
+  const result = await sql("select count(*) from Suggestions where Product_id = ?", [req.query.productid]);
+  if (result === undefined) {
+    return res.sendStatus(500);
+  }
+  return res.send({ count: result["count(*)"] });
 });
 
 apiRouter.get("/getRegisters", async (req, res) => {
