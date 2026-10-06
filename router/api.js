@@ -95,8 +95,14 @@ apiRouter.post("/postEdit", async (req, res) => {
   res.send({ id: data_.id });
 });
 apiRouter.get("/deletePost", async (req, res) => {
-  await Product_Class.remove(req.query.id);
-  res.send(true);
+  const result = await Product_Class.remove(req.query.id);
+  if (result === null) {
+    return res.sendStatus(404);
+  }
+  if (result === false) {
+    return res.sendStatus(500);
+  }
+  return res.send(true);
 });
 
 apiRouter.get("/changeStatusPost", async (req, res) => {
