@@ -91,7 +91,17 @@ apiRouter.get("/deletePost", async (req, res) => {
 });
 
 apiRouter.get("/changeStatusPost", async (req, res) => {
-  res.send(Product_Class.changeStatus(req.query.id, req.query.status));
+  if (req.query.status !== "true" && req.query.status !== "false") {
+    return res.sendStatus(400);
+  }
+  const updated = await Product_Class.changeStatus(
+    req.query.id,
+    req.query.status === "true"
+  );
+  if (!updated) {
+    return res.sendStatus(404);
+  }
+  return res.send({ res: true });
 });
 
 apiRouter.get("/registerTime", async (req, res) => {

@@ -84,10 +84,11 @@ export class Product_Class {
     for (let i = 0; i < Product_data.length; i++) {
       if (Product_data[i].id == id) {
         await sql("UPDATE Products SET active = ? WHERE id = ?", [state, id]);
-        Product_data[i].active = JSON.parse(state);
-        return console.log(5, Product_data[i].active);
+        Product_data[i].active = state;
+        return true;
       }
     }
+    return false;
   };
 
   static remove = async (id) => {
