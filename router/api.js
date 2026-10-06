@@ -16,7 +16,11 @@ apiRouter.get("/products", async (req, res) => {
   }
 });
 apiRouter.get("/product", async (req, res) => {
-  res.send(await Product_Class.getProduct(req.query.id));
+  const product = await Product_Class.getProduct(req.query.id);
+  if (!product) {
+    return res.sendStatus(404);
+  }
+  return res.send(product);
 });
 
 apiRouter.get("/category", (req, res) => {
