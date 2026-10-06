@@ -76,12 +76,14 @@ apiRouter.get("/removeRegisterProduct", async (req, res) => {
   res.send({ res: true });
 });
 apiRouter.get("/checkRegisterProduct", async (req, res) => {
-  let sql_res = await sql("select * from Suggestions where Product_id = ? and User_id = ?", [req.query.Product_id, req.query.User_id]);
-  if (sql_res) {
-    res.send(true);
-  } else {
-    res.send(false);
+  const registrations = await sql_arr("select * from Suggestions where Product_id = ? and User_id = ?", [req.query.Product_id, req.query.User_id]);
+  if (registrations === undefined) {
+    return res.sendStatus(500);
   }
+  if (registrations.length > 0) {
+    return res.send(true);
+  }
+  return res.send(false);
 });
 apiRouter.post("/postADS", async (req, res) => {
   let data_ = req.body;
