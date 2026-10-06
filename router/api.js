@@ -115,7 +115,7 @@ apiRouter.get("/getAllUsers", async (req, res) => {
 
 apiRouter.get("/RunMozaiede", async (req, res) => {
   try {
-    let Suggestions___ = await sql(`select * from Suggestions`);
+    let Suggestions___ = await sql("select * from Suggestions");
     let SUG = {};
     for await (const element of Suggestions___) {
       if (SUG[element.Product_id] != undefined) {
@@ -125,27 +125,28 @@ apiRouter.get("/RunMozaiede", async (req, res) => {
         SUG[element.Product_id].push(element);
       }
     }
-    Object.entries(SUG).filter(async (v, index, ar) => {
-      await SUG[v[0]].sort((a, b) => b.Price - a.Price);
-      let i = 0;
-      let len = SUG[v[0]].length >= 4 ? 4 : SUG[v[0]].length;
-      for (let i = 0; i < len; i++) {
-        Product_data.forEach(async (element) => {
-          if (element.id == v[0]) {
-            if (element.registrations.length != 4 && !element.registrations.find((a) => a.id == SUG[v[0]][i].User_id)) {
-              await element.registrations.push({ id: SUG[v[0]][i].User_id, price: SUG[v[0]][i].Price });
-              await sql(`update Products set registrations='${JSON.stringify(element.registrations)}' where id="${element.id}"`);
+    for (const [productId, suggestions] of Object.entries(SUG)) {
+      suggestions.sort((a, b) => b.Price - a.Price);
+      const limit = suggestions.length >= 4 ? 4 : suggestions.length;
+      for (let i = 0; i < limit; i++) {
+        for (const element of Product_data) {
+          if (element.id == productId) {
+            if (element.registrations.length < 4 && !element.registrations.find((a) => a.id == suggestions[i].User_id)) {
+              element.registrations.push({ id: suggestions[i].User_id, price: suggestions[i].Price });
+              await sql(
+                "update Products set registrations = ? where id = ?",
+                [JSON.stringify(element.registrations), element.id]
+              );
             }
           }
-        });
+        }
       }
-    });
+    }
     res.send([true]);
   } catch (error) {
     res.send([false, error]);
   }
 });
-
 apiRouter.get("/count_product_register", async (req, res) => {
   let a = await sql("select count(*) from Suggestions where Product_id = ?", [req.query.productid]);
   res.send({ count: a["count(*)"] });
