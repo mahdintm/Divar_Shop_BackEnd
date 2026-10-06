@@ -59,6 +59,10 @@ Production / normal start:
 npm start
 ```
 
+## CORS origins
+
+`CORS_ORIGINS` configures the allowed CORS origins as a comma-separated list. When it is not set, the backend uses the default origins already defined in `app.js`.
+
 ## Server port
 
 The HTTP server reads the `PORT` environment variable. When it is not set, the server uses port `3001`.
