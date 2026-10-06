@@ -36,7 +36,7 @@ accountRouter.post("/login", async (req, res) => {
         });
         ldp_sql["token"] = token;
         ldp_sql["ldp"] = true;
-        users[ldp_sql.id] = ldp;
+        users[ldp_sql.id] = ldp_sql;
         res.send({
           status: true,
         });
@@ -50,7 +50,7 @@ accountRouter.post("/login", async (req, res) => {
         });
         ldp_sql["token"] = token;
         ldp_sql["ldp"] = true;
-        users[ldp_sql.id] = ldp;
+        users[ldp_sql.id] = ldp_sql;
         res.send({
           status: true,
         });
