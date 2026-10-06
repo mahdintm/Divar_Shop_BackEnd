@@ -49,8 +49,12 @@ apiRouter.get("/user", async (req, res) => {
 });
 
 apiRouter.get("/RegisterProduct", async (req, res) => {
-  let sql_res = await sql("select * from Suggestions where Product_id = ? and User_id = ?", [req.query.Product_id, req.query.User_id]);
-  if (sql_res) {
+  const registrations = await sql_arr("select * from Suggestions where Product_id = ? and User_id = ?", [req.query.Product_id, req.query.User_id]);
+  if (registrations === undefined) {
+    return res.sendStatus(500);
+  }
+  if (registrations.length > 0) {
+
     const writeResult = await sql("update Suggestions set Price = ? where Product_id = ? and User_id = ?", [req.query.User_Price, req.query.Product_id, req.query.User_id]);
     if (!writeResult) {
       return res.sendStatus(500);
