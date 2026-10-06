@@ -185,7 +185,10 @@ apiRouter.get("/getAllUsers", async (req, res) => {
 
 apiRouter.get("/RunMozaiede", async (req, res) => {
   try {
-    let Suggestions___ = await sql("select * from Suggestions");
+    const Suggestions___ = await sql_arr("select * from Suggestions");
+    if (Suggestions___ === undefined) {
+      throw new Error("Suggestions query failed");
+    }
     let SUG = {};
     for await (const element of Suggestions___) {
       if (SUG[element.Product_id] != undefined) {
