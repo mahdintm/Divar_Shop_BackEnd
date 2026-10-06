@@ -21,14 +21,14 @@ apiRouter.get("/product", async (req, res) => {
 
 apiRouter.get("/category", (req, res) => {
   if (req.query.id) {
-    Category_data.forEach((element) => {
-      if (element.id == req.query.id) {
-        res.send(element);
-      }
-    });
-  } else {
-    res.send(Category_data);
+    const category = Category_data.find((element) => element.id == req.query.id);
+    if (!category) {
+      return res.sendStatus(404);
+    }
+    return res.send(category);
   }
+
+  res.send(Category_data);
 });
 apiRouter.get("/user", async (req, res) => {
   res.send(await sql(`select * from Users where id="${req.query.id}"`));
