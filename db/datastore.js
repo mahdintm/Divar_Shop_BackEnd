@@ -50,8 +50,12 @@ export class Settings {
   static set = async (name, value) => {
     for (let i = 0; i < Setting.length; i++) {
       if (Setting[i].name == name) {
-        await sql("update Settings set value = ? where id = ?", [JSON.stringify(value), Setting[i].id]);
-        return (Setting[i].value = value);
+        const result = await sql("update Settings set value = ? where id = ?", [JSON.stringify(value), Setting[i].id]);
+        if (!result) {
+          return undefined;
+        }
+        Setting[i].value = value;
+        return Setting[i].value;
       }
     }
   };
