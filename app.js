@@ -8,10 +8,21 @@ const app = express();
 //   req.hostname == "192.168.8.111" ? next() : res.send("Access Denied");
 // });
 app.use(cookieParser());
+const DEFAULT_CORS_ORIGINS = [
+  "http://localhost:3000",
+  "http://shop.agahpardazan.ir",
+  "https://shop.agahpardazan.ir",
+  "http://172.20.10.16",
+];
+
+const CORS_ORIGINS = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(",").map((origin) => origin.trim()).filter(Boolean)
+  : DEFAULT_CORS_ORIGINS;
+
 app.use(
   cors({
     credentials: true,
-    origin: ["http://localhost:3000", "http://shop.agahpardazan.ir", "https://shop.agahpardazan.ir", "http://172.20.10.16"],
+    origin: CORS_ORIGINS,
   })
 );
 app.use(express.urlencoded({ extended: false }));
