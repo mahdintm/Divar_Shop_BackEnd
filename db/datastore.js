@@ -50,7 +50,7 @@ export class Settings {
   static set = async (name, value) => {
     for (let i = 0; i < Setting.length; i++) {
       if (Setting[i].name == name) {
-        await sql(`update Settings set value='${JSON.stringify(value)}' where id="${Setting[i].id}"`);
+        await sql("update Settings set value = ? where id = ?", [JSON.stringify(value), Setting[i].id]);
         return (Setting[i].value = value);
       }
     }
@@ -83,7 +83,7 @@ export class Product_Class {
   static changeStatus = async (id, state) => {
     for (let i = 0; i < Product_data.length; i++) {
       if (Product_data[i].id == id) {
-        await sql(`UPDATE Products SET active=${state} WHERE id="${id}"`);
+        await sql("UPDATE Products SET active = ? WHERE id = ?", [state, id]);
         Product_data[i].active = JSON.parse(state);
         return console.log(5, Product_data[i].active);
       }
@@ -93,7 +93,7 @@ export class Product_Class {
   static remove = async (id) => {
     for (const element of Product_data) {
       if (element.id == id) {
-        await sql(`DELETE FROM Products WHERE id="${id}"`);
+        await sql("DELETE FROM Products WHERE id = ?", [id]);
         var index = Product_data.indexOf(element);
         if (index != -1) Product_data.splice(index, 1);
         return;
