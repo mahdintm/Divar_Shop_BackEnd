@@ -15,7 +15,7 @@ export class LDAP {
     return new Promise((resolve, reject) => {
       ad.find(`mail=${user}`, function (err, results) {
         if (err || !results) {
-          console.log("ERROR: " + JSON.stringify(err));
+          console.error("LDAP user lookup failed");
           return reject(err || new Error("LDAP user lookup returned no results"));
         }
 
