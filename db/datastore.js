@@ -89,8 +89,10 @@ export class Product_Class {
     for (let i = 0; i < Product_data.length; i++) {
       if (Product_data[i].id == id) {
         Product_data[i] = data;
+        return true;
       }
     }
+    return false;
   };
   static getAllProducts = async () => {
     return Product_data;
