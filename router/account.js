@@ -173,12 +173,23 @@ accountRouter.get("/isUser", async (req, res) => {
         auth: false,
       });
     }
-    res.status(200).json(
-      await sql(
-        "select id, username, email, acl, profile, firstname, lastname, phonenumber, ldp, firstLogin, lastLogin from Users where id = ?",
-        [claims.id]
-      )
+    const dbUsers = await sql_arr(
+      "select id, username, email, acl, profile, firstname, lastname, phonenumber, ldp, firstLogin, lastLogin from Users where id = ?",
+      [claims.id]
     );
+    if (dbUsers === undefined) {
+      return res.status(500).send({
+        auth: false,
+      });
+    }
+    if (dbUsers.length === 0) {
+      delete users[claims.id];
+      res.cookie("jwt", "", { maxAge: 0 });
+      return res.status(401).send({
+        auth: false,
+      });
+    }
+    return res.status(200).json(dbUsers[0]);
   } catch (e) {
     res.cookie("jwt", "", { maxAge: 0 });
     return res.status(401).send({
