@@ -124,8 +124,11 @@ apiRouter.get("/changeStatusPost", async (req, res) => {
     req.query.id,
     req.query.status === "true"
   );
-  if (!updated) {
+  if (updated === null) {
     return res.sendStatus(404);
+  }
+  if (updated === false) {
+    return res.sendStatus(500);
   }
   return res.send({ res: true });
 });
