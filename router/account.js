@@ -1,5 +1,5 @@
 import { users } from "../db/datastore.js";
-import { sql } from "../db/mysql.js";
+import { sql, sql_arr } from "../db/mysql.js";
 import express from "express";
 import jwt from "jsonwebtoken";
 import { LDAP } from "../ldap/ldap.js";
@@ -9,9 +9,26 @@ const config = process.env;
 
 accountRouter.post("/login", async (req, res) => {
   const { username, password } = req.body;
-  const user_SQL = await sql("select * from Users where username = ? and ldp = ?", [username, false]);
+  const localUsers = await sql_arr(
+    "select * from Users where username = ? and ldp = ?",
+    [username, false]
+  );
+  if (localUsers === undefined) {
+    return res.status(500).send({
+      status: false,
+    });
+  }
+  const user_SQL = localUsers[0];
   if (user_SQL && password == user_SQL.password) {
-    await sql("update Users set lastLogin = ? where id = ?", [Date.now(), user_SQL.id]);
+    const lastLoginResult = await sql(
+      "update Users set lastLogin = ? where id = ?",
+      [Date.now(), user_SQL.id]
+    );
+    if (!lastLoginResult) {
+      return res.status(500).send({
+        status: false,
+      });
+    }
     const token = jwt.sign({ id: user_SQL.id }, config.TOKEN_KEY);
     res.cookie("jwt", token, {
       httpOnly: true,
