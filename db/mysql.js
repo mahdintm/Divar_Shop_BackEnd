@@ -21,7 +21,7 @@ export async function sql(sql_command, params = []) {
       return rows_Main;
     }
   } catch (error) {
-    console.log(error);
+    console.error("Database query failed");
   }
 }
 
@@ -30,7 +30,7 @@ export async function sql_arr(sql_command, params = []) {
     const [rows_Main, fields_Main] = await pool_Main.promise().query(sql_command, params);
     return rows_Main;
   } catch (error) {
-    console.log(error);
+    console.error("Database query failed");
   }
 }
 
