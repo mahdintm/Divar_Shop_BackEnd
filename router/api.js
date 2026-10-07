@@ -213,12 +213,24 @@ apiRouter.get("/RunMozaiede", async (req, res) => {
       for (let i = 0; i < limit; i++) {
         for (const element of Product_data) {
           if (element.id == productId) {
-            if (element.registrations.length < 4 && !element.registrations.find((a) => a.id == suggestions[i].User_id)) {
-              element.registrations.push({ id: suggestions[i].User_id, price: suggestions[i].Price });
-              await sql(
+            if (
+              element.registrations.length < 4 &&
+              !element.registrations.find((a) => a.id == suggestions[i].User_id)
+            ) {
+              const updatedRegistrations = [
+                ...element.registrations,
+                { id: suggestions[i].User_id, price: suggestions[i].Price },
+              ];
+              const writeResult = await sql(
                 "update Products set registrations = ? where id = ?",
-                [JSON.stringify(element.registrations), element.id]
+                [JSON.stringify(updatedRegistrations), element.id]
               );
+              if (!writeResult) {
+                throw new Error(
+                  `Auction registration persistence failed for product ${productId}`
+                );
+              }
+              element.registrations = updatedRegistrations;
             }
           }
         }
