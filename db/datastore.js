@@ -1,4 +1,4 @@
-import { sql_arr } from "./mysql.js";
+import { sql, sql_arr } from "./mysql.js";
 export var Category_data = [];
 export var Product_data = [];
 export var Setting = [];
@@ -98,12 +98,18 @@ export class Product_Class {
   static changeStatus = async (id, state) => {
     for (let i = 0; i < Product_data.length; i++) {
       if (Product_data[i].id == id) {
-        await sql("UPDATE Products SET active = ? WHERE id = ?", [state, id]);
+        const result = await sql(
+          "UPDATE Products SET active = ? WHERE id = ?",
+          [state, id]
+        );
+        if (!result) {
+          return false;
+        }
         Product_data[i].active = state;
         return true;
       }
     }
-    return false;
+    return null;
   };
 
   static remove = async (id) => {
