@@ -56,9 +56,26 @@ accountRouter.post("/login", async (req, res) => {
       });
     }
     if (ldp[0]) {
-      let ldp_sql = await sql("select * from Users where username = ?", [ldp[1].mail]);
-      if (ldp_sql) {
-        await sql("update Users set lastLogin = ? where id = ?", [Date.now(), ldp_sql.id]);
+      const ldapUsers = await sql_arr(
+        "select * from Users where username = ?",
+        [ldp[1].mail]
+      );
+      if (ldapUsers === undefined) {
+        return res.status(500).send({
+          status: false,
+        });
+      }
+      if (ldapUsers.length > 0) {
+        let ldp_sql = ldapUsers[0];
+        const lastLoginResult = await sql(
+          "update Users set lastLogin = ? where id = ?",
+          [Date.now(), ldp_sql.id]
+        );
+        if (!lastLoginResult) {
+          return res.status(500).send({
+            status: false,
+          });
+        }
         const token = jwt.sign({ id: ldp_sql.id }, config.TOKEN_KEY);
         res.cookie("jwt", token, {
           httpOnly: true,
@@ -71,8 +88,25 @@ accountRouter.post("/login", async (req, res) => {
           status: true,
         });
       } else {
-        let ldp_sql_reg = await sql("insert into Users (username, email, acl, password, ldp, firstLogin, lastLogin) values (?, ?, ?, ?, ?, ?, ?)", [ldp[1].mail, ldp[1].mail, "0", Date.now(), "1", Date.now(), Date.now()]);
-        let ldp_sql = await sql("select * from Users where username = ?", [ldp[1].mail]);
+        const registrationResult = await sql(
+          "insert into Users (username, email, acl, password, ldp, firstLogin, lastLogin) values (?, ?, ?, ?, ?, ?, ?)",
+          [ldp[1].mail, ldp[1].mail, "0", Date.now(), "1", Date.now(), Date.now()]
+        );
+        if (!registrationResult) {
+          return res.status(500).send({
+            status: false,
+          });
+        }
+        const registeredUsers = await sql_arr(
+          "select * from Users where username = ?",
+          [ldp[1].mail]
+        );
+        if (!registeredUsers || registeredUsers.length === 0) {
+          return res.status(500).send({
+            status: false,
+          });
+        }
+        let ldp_sql = registeredUsers[0];
         const token = jwt.sign({ id: ldp_sql.id }, config.TOKEN_KEY);
         res.cookie("jwt", token, {
           httpOnly: true,
