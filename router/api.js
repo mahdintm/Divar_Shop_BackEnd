@@ -48,20 +48,34 @@ apiRouter.get("/user", async (req, res) => {
   return res.send(users[0]);
 });
 
+const getAuthenticatedUserId = (req) => {
+  try {
+    const cookie = req.cookies?.jwt;
+    const claims = jwt.verify(cookie, config.TOKEN_KEY);
+    return claims?.id ?? null;
+  } catch (error) {
+    return null;
+  }
+};
+
 apiRouter.get("/RegisterProduct", async (req, res) => {
-  const registrations = await sql_arr("select * from Suggestions where Product_id = ? and User_id = ?", [req.query.Product_id, req.query.User_id]);
+  const userId = getAuthenticatedUserId(req);
+  if (!userId) {
+    return res.sendStatus(401);
+  }
+  const registrations = await sql_arr("select * from Suggestions where Product_id = ? and User_id = ?", [req.query.Product_id, userId]);
   if (registrations === undefined) {
     return res.sendStatus(500);
   }
   if (registrations.length > 0) {
 
-    const writeResult = await sql("update Suggestions set Price = ? where Product_id = ? and User_id = ?", [req.query.User_Price, req.query.Product_id, req.query.User_id]);
+    const writeResult = await sql("update Suggestions set Price = ? where Product_id = ? and User_id = ?", [req.query.User_Price, req.query.Product_id, userId]);
     if (!writeResult) {
       return res.sendStatus(500);
     }
     res.send({ res: true });
   } else {
-    const writeResult = await sql("insert into Suggestions (User_id, Product_id, Price, Date) values (?, ?, ?, ?)", [req.query.User_id, req.query.Product_id, req.query.User_Price, Date.now()]);
+    const writeResult = await sql("insert into Suggestions (User_id, Product_id, Price, Date) values (?, ?, ?, ?)", [userId, req.query.Product_id, req.query.User_Price, Date.now()]);
     if (!writeResult) {
       return res.sendStatus(500);
     }
@@ -69,14 +83,22 @@ apiRouter.get("/RegisterProduct", async (req, res) => {
   }
 });
 apiRouter.get("/removeRegisterProduct", async (req, res) => {
-  const writeResult = await sql("delete from Suggestions where Product_id = ? and User_id = ?", [req.query.Product_id, req.query.User_id]);
+  const userId = getAuthenticatedUserId(req);
+  if (!userId) {
+    return res.sendStatus(401);
+  }
+  const writeResult = await sql("delete from Suggestions where Product_id = ? and User_id = ?", [req.query.Product_id, userId]);
   if (!writeResult) {
     return res.sendStatus(500);
   }
   res.send({ res: true });
 });
 apiRouter.get("/checkRegisterProduct", async (req, res) => {
-  const registrations = await sql_arr("select * from Suggestions where Product_id = ? and User_id = ?", [req.query.Product_id, req.query.User_id]);
+  const userId = getAuthenticatedUserId(req);
+  if (!userId) {
+    return res.sendStatus(401);
+  }
+  const registrations = await sql_arr("select * from Suggestions where Product_id = ? and User_id = ?", [req.query.Product_id, userId]);
   if (registrations === undefined) {
     return res.sendStatus(500);
   }
