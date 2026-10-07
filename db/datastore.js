@@ -1,10 +1,13 @@
-import { sql } from "./mysql.js";
+import { sql_arr } from "./mysql.js";
 export var Category_data = [];
 export var Product_data = [];
 export var Setting = [];
 export var users = {};
 async function start() {
-  let Category_data_ = await sql(`select * from Category`);
+  let Category_data_ = await sql_arr(`select * from Category`);
+  if (!Array.isArray(Category_data_)) {
+    throw new Error("Category datastore query failed");
+  }
   Category_data_.forEach((element) => {
     if (element.parent != 0) {
       Category_data.forEach((elem) => {
@@ -19,7 +22,10 @@ async function start() {
       Category_data.push(element);
     }
   });
-  let Product_data_ = await sql(`select * from Products`);
+  let Product_data_ = await sql_arr(`select * from Products`);
+  if (!Array.isArray(Product_data_)) {
+    throw new Error("Product datastore query failed");
+  }
   Product_data_.forEach((element) => {
     element.registrations = JSON.parse(element.registrations);
     element.imgs = JSON.parse(element.imgs);
@@ -27,13 +33,18 @@ async function start() {
     Product_data.push(element);
   });
 
-  let Setting_ = await sql(`select * from Settings`);
+  let Setting_ = await sql_arr(`select * from Settings`);
+  if (!Array.isArray(Setting_)) {
+    throw new Error("Settings datastore query failed");
+  }
   Setting_.forEach((element) => {
     element.value = JSON.parse(element.value);
     Setting.push(element);
   });
 }
-start();
+start().catch((error) => {
+  console.error("Datastore initialization failed:", error);
+});
 
 export class Users {
   static new_id = () => {};
