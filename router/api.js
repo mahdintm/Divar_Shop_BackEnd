@@ -103,7 +103,16 @@ apiRouter.post("/postEdit", async (req, res) => {
     return res.sendStatus(500);
   }
   if (db_sql.affectedRows === 0) {
-    return res.sendStatus(404);
+    const existingProduct = await sql_arr(
+      "select id from Products where id = ?",
+      [data_.id]
+    );
+    if (existingProduct === undefined) {
+      return res.sendStatus(500);
+    }
+    if (existingProduct.length === 0) {
+      return res.sendStatus(404);
+    }
   }
   const cacheUpdated = await Product_Class.setAllData(data_.id, data_);
   if (!cacheUpdated) {
