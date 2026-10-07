@@ -102,7 +102,13 @@ apiRouter.post("/postEdit", async (req, res) => {
   if (!db_sql) {
     return res.sendStatus(500);
   }
-  Product_Class.setAllData(data_.id, data_);
+  if (db_sql.affectedRows === 0) {
+    return res.sendStatus(404);
+  }
+  const cacheUpdated = await Product_Class.setAllData(data_.id, data_);
+  if (!cacheUpdated) {
+    return res.sendStatus(500);
+  }
   res.send({ id: data_.id });
 });
 apiRouter.get("/deletePost", async (req, res) => {
