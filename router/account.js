@@ -24,7 +24,20 @@ accountRouter.post("/login", async (req, res) => {
       status: true,
     });
   } else {
-    let ldp = await LDAP.authenticate(username, password);
+    let ldp;
+    try {
+      ldp = await LDAP.authenticate(username, password);
+    } catch (error) {
+      console.error("LDAP authentication service failed:", error);
+      return res.status(502).send({
+        status: false,
+      });
+    }
+    if (!Array.isArray(ldp) || ldp[0] !== true || !ldp[1]?.mail) {
+      return res.status(404).send({
+        status: false,
+      });
+    }
     if (ldp[0]) {
       let ldp_sql = await sql("select * from Users where username = ?", [ldp[1].mail]);
       if (ldp_sql) {
