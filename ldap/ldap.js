@@ -37,7 +37,11 @@ export class LDAP {
               ad.findUser(
                 results.users[0].userPrincipalName,
                 (err, adUser) => {
-                  resolve([auth, adUser]);
+                  if (err || !adUser || typeof adUser !== "object") {
+                    reject(new Error("LDAP user-detail lookup failed"));
+                    return;
+                  }
+                  resolve([true, adUser]);
                 }
               );
             } else {
