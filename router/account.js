@@ -7,6 +7,15 @@ export const accountRouter = express.Router();
 
 const config = process.env;
 
+const createSessionToken = (userId) => {
+  try {
+    return jwt.sign({ id: userId }, config.TOKEN_KEY);
+  } catch (error) {
+    console.error("Session token creation failed");
+    return null;
+  }
+};
+
 accountRouter.post("/login", async (req, res) => {
   const { username, password } = req.body;
   const localUsers = await sql_arr(
@@ -29,7 +38,10 @@ accountRouter.post("/login", async (req, res) => {
         status: false,
       });
     }
-    const token = jwt.sign({ id: user_SQL.id }, config.TOKEN_KEY);
+    const token = createSessionToken(user_SQL.id);
+    if (!token) {
+      return res.status(500).send({ status: false });
+    }
     res.cookie("jwt", token, {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 1 day
@@ -76,7 +88,10 @@ accountRouter.post("/login", async (req, res) => {
             status: false,
           });
         }
-        const token = jwt.sign({ id: ldp_sql.id }, config.TOKEN_KEY);
+        const token = createSessionToken(ldp_sql.id);
+        if (!token) {
+          return res.status(500).send({ status: false });
+        }
         res.cookie("jwt", token, {
           httpOnly: true,
           maxAge: 24 * 60 * 60 * 1000, // 1 day
@@ -107,7 +122,10 @@ accountRouter.post("/login", async (req, res) => {
           });
         }
         let ldp_sql = registeredUsers[0];
-        const token = jwt.sign({ id: ldp_sql.id }, config.TOKEN_KEY);
+        const token = createSessionToken(ldp_sql.id);
+        if (!token) {
+          return res.status(500).send({ status: false });
+        }
         res.cookie("jwt", token, {
           httpOnly: true,
           maxAge: 24 * 60 * 60 * 1000, // 1 day
