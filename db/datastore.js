@@ -8,18 +8,27 @@ async function start() {
   if (!Array.isArray(Category_data_)) {
     throw new Error("Category datastore query failed");
   }
+  const categoryById = new Map();
+  Category_data_.forEach((element) => {
+    element.child = [];
+    if (element.parent == 0) {
+      element.count = 5;
+    }
+    categoryById.set(element.id, element);
+    Category_data.push(element);
+  });
   Category_data_.forEach((element) => {
     if (element.parent != 0) {
-      Category_data.forEach((elem) => {
-        if (elem.id == element.parent) {
-          elem.child.push(element);
-          Category_data.push(element);
-        }
-      });
-    } else {
-      element.child = [];
-      element.count = 5;
-      Category_data.push(element);
+      const parent = categoryById.get(element.parent);
+      if (parent) {
+        parent.child.push(element);
+      } else {
+        console.warn(
+          "Category hierarchy orphan detected:",
+          element.id,
+          element.parent
+        );
+      }
     }
   });
   let Product_data_ = await sql_arr(`select * from Products`);
