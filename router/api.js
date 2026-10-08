@@ -77,19 +77,32 @@ apiRouter.get("/RegisterProduct", async (req, res) => {
     return res.sendStatus(403);
   }
 
+  const userPrice = Number(req.query.User_Price);
+  if (!Number.isFinite(userPrice) || userPrice < 0) {
+    return res.sendStatus(400);
+  }
+
+  const product = await Product_Class.getProduct(req.query.Product_id);
+  if (!product) {
+    return res.sendStatus(404);
+  }
+  if (!Number.isFinite(Number(product.price)) || userPrice < Number(product.price)) {
+    return res.sendStatus(400);
+  }
+
   const registrations = await sql_arr("select * from Suggestions where Product_id = ? and User_id = ?", [req.query.Product_id, userId]);
   if (registrations === undefined) {
     return res.sendStatus(500);
   }
   if (registrations.length > 0) {
 
-    const writeResult = await sql("update Suggestions set Price = ? where Product_id = ? and User_id = ?", [req.query.User_Price, req.query.Product_id, userId]);
+    const writeResult = await sql("update Suggestions set Price = ? where Product_id = ? and User_id = ?", [userPrice, req.query.Product_id, userId]);
     if (!writeResult) {
       return res.sendStatus(500);
     }
     res.send({ res: true });
   } else {
-    const writeResult = await sql("insert into Suggestions (User_id, Product_id, Price, Date) values (?, ?, ?, ?)", [userId, req.query.Product_id, req.query.User_Price, Date.now()]);
+    const writeResult = await sql("insert into Suggestions (User_id, Product_id, Price, Date) values (?, ?, ?, ?)", [userId, req.query.Product_id, userPrice, Date.now()]);
     if (!writeResult) {
       return res.sendStatus(500);
     }
