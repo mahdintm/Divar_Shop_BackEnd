@@ -190,6 +190,9 @@ apiRouter.get("/setRegisterTime_End", async (req, res) => {
   if (!RG_ST) {
     return res.sendStatus(500);
   }
+  if (Number.isFinite(Number(RG_ST.start)) && time < Number(RG_ST.start)) {
+    return res.sendStatus(400);
+  }
   const RG_ST_ = await Settings.set("RegisterTime", { start: RG_ST.start, end: time });
   if (!RG_ST_) {
     return res.sendStatus(500);
@@ -204,6 +207,9 @@ apiRouter.get("/setRegisterTime_Start", async (req, res) => {
   const RG_ST = await Settings.get("RegisterTime");
   if (!RG_ST) {
     return res.sendStatus(500);
+  }
+  if (Number.isFinite(Number(RG_ST.end)) && time > Number(RG_ST.end)) {
+    return res.sendStatus(400);
   }
   const RG_ST_ = await Settings.set("RegisterTime", { start: time, end: RG_ST.end });
   if (!RG_ST_) {
