@@ -338,7 +338,7 @@ apiRouter.get("/RunMozaiede", requireAdmin, async (req, res) => {
     res.send([true]);
   } catch (error) {
     console.error("Auction processing failed:", error);
-    res.send([false]);
+    res.status(500).send([false]);
   } finally {
     auctionRunInProgress = false;
   }
