@@ -48,9 +48,7 @@ accountRouter.post("/login", async (req, res) => {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
-    user_SQL["token"] = token;
-    user_SQL["ldp"] = false;
-    users[user_SQL.id] = user_SQL;
+    users[user_SQL.id] = true;
     res.send({
       status: true,
     });
@@ -98,9 +96,7 @@ accountRouter.post("/login", async (req, res) => {
           httpOnly: true,
           maxAge: 24 * 60 * 60 * 1000, // 1 day
         });
-        ldp_sql["token"] = token;
-        ldp_sql["ldp"] = true;
-        users[ldp_sql.id] = ldp_sql;
+        users[ldp_sql.id] = true;
         res.send({
           status: true,
         });
@@ -132,9 +128,7 @@ accountRouter.post("/login", async (req, res) => {
           httpOnly: true,
           maxAge: 24 * 60 * 60 * 1000, // 1 day
         });
-        ldp_sql["token"] = token;
-        ldp_sql["ldp"] = true;
-        users[ldp_sql.id] = ldp_sql;
+                users[ldp_sql.id] = true;
         res.send({
           status: true,
         });
