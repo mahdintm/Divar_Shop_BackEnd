@@ -64,6 +64,19 @@ apiRouter.get("/RegisterProduct", async (req, res) => {
   if (!userId) {
     return res.sendStatus(401);
   }
+
+  const registrationTime = await Settings.get("RegisterTime");
+  const now = Date.now();
+  if (
+    !registrationTime ||
+    !Number.isFinite(Number(registrationTime.start)) ||
+    !Number.isFinite(Number(registrationTime.end)) ||
+    now < Number(registrationTime.start) ||
+    now > Number(registrationTime.end)
+  ) {
+    return res.sendStatus(403);
+  }
+
   const registrations = await sql_arr("select * from Suggestions where Product_id = ? and User_id = ?", [req.query.Product_id, userId]);
   if (registrations === undefined) {
     return res.sendStatus(500);
