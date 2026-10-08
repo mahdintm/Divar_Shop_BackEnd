@@ -59,6 +59,26 @@ const getAuthenticatedUserId = (req) => {
   }
 };
 
+const requireAdmin = async (req, res, next) => {
+  const userId = getAuthenticatedUserId(req);
+  if (!userId) {
+    return res.sendStatus(401);
+  }
+
+  const adminUsers = await sql_arr(
+    "select acl from Users where id = ?",
+    [userId]
+  );
+  if (!Array.isArray(adminUsers) || adminUsers.length === 0) {
+    return res.sendStatus(401);
+  }
+  if (Number(adminUsers[0].acl) !== 1) {
+    return res.sendStatus(403);
+  }
+
+  return next();
+};
+
 apiRouter.get("/RegisterProduct", async (req, res) => {
   const userId = getAuthenticatedUserId(req);
   if (!userId) {
@@ -134,7 +154,7 @@ apiRouter.get("/checkRegisterProduct", async (req, res) => {
   }
   return res.send(false);
 });
-apiRouter.post("/postADS", async (req, res) => {
+apiRouter.post("/postADS", requireAdmin, async (req, res) => {
   let data_ = req.body;
   let db_sql = await sql("insert into Products (category_id, title, description, price, date, imgs, options, active, code) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", [req.body.category_id, req.body.title, req.body.description, req.body.price, req.body.date, JSON.stringify(req.body.imgs), JSON.stringify(req.body.options), req.body.active, req.body.code]);
   if (!db_sql) {
@@ -145,7 +165,7 @@ apiRouter.post("/postADS", async (req, res) => {
   Product_Class.new_Product(data_);
   res.send({ id: db_sql.insertId });
 });
-apiRouter.post("/postEdit", async (req, res) => {
+apiRouter.post("/postEdit", requireAdmin, async (req, res) => {
   let data_ = req.body;
   let db_sql = await sql("update Products set category_id = ?, title = ?, description = ?, price = ?, imgs = ?, options = ?, active = ?, code = ? where id = ?", [req.body.category_id, req.body.title, req.body.description, req.body.price, JSON.stringify(req.body.imgs), JSON.stringify(req.body.options), req.body.active, req.body.code, req.body.id]);
   if (!db_sql) {
@@ -160,7 +180,7 @@ apiRouter.post("/postEdit", async (req, res) => {
   }
   res.send({ id: data_.id });
 });
-apiRouter.get("/deletePost", async (req, res) => {
+apiRouter.get("/deletePost", requireAdmin, async (req, res) => {
   const result = await Product_Class.remove(req.query.id);
   if (result === null) {
     return res.sendStatus(404);
@@ -171,7 +191,7 @@ apiRouter.get("/deletePost", async (req, res) => {
   return res.send(true);
 });
 
-apiRouter.get("/changeStatusPost", async (req, res) => {
+apiRouter.get("/changeStatusPost", requireAdmin, async (req, res) => {
   if (req.query.status !== "true" && req.query.status !== "false") {
     return res.sendStatus(400);
   }
@@ -200,14 +220,14 @@ apiRouter.get("/registerTime", async (req, res) => {
     res.send(false);
   }
 });
-apiRouter.get("/getRegisterTime", async (req, res) => {
+apiRouter.get("/getRegisterTime", requireAdmin, async (req, res) => {
   const RG_ST = await Settings.get("RegisterTime");
   if (!RG_ST) {
     return res.sendStatus(500);
   }
   res.send(RG_ST);
 });
-apiRouter.get("/setRegisterTime_End", async (req, res) => {
+apiRouter.get("/setRegisterTime_End", requireAdmin, async (req, res) => {
   const time = Number(req.query.Time);
   if (!Number.isFinite(time) || time < 0) {
     return res.sendStatus(400);
@@ -225,7 +245,7 @@ apiRouter.get("/setRegisterTime_End", async (req, res) => {
   }
   res.send(RG_ST_);
 });
-apiRouter.get("/setRegisterTime_Start", async (req, res) => {
+apiRouter.get("/setRegisterTime_Start", requireAdmin, async (req, res) => {
   const time = Number(req.query.Time);
   if (!Number.isFinite(time) || time < 0) {
     return res.sendStatus(400);
@@ -243,7 +263,7 @@ apiRouter.get("/setRegisterTime_Start", async (req, res) => {
   }
   res.send(RG_ST_);
 });
-apiRouter.get("/getAllUsers", async (req, res) => {
+apiRouter.get("/getAllUsers", requireAdmin, async (req, res) => {
   const users = await sql_arr(
     "select id,username,email,acl,profile,firstname,lastname,phonenumber,ldp,firstLogin,lastLogin from Users"
   );
@@ -253,7 +273,7 @@ apiRouter.get("/getAllUsers", async (req, res) => {
   return res.send(users);
 });
 
-apiRouter.get("/RunMozaiede", async (req, res) => {
+apiRouter.get("/RunMozaiede", requireAdmin, async (req, res) => {
   if (auctionRunInProgress) {
     return res.sendStatus(409);
   }
