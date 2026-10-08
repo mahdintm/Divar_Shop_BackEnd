@@ -9,7 +9,9 @@ const config = process.env;
 
 const createSessionToken = (userId) => {
   try {
-    return jwt.sign({ id: userId }, config.TOKEN_KEY);
+    return jwt.sign({ id: userId }, config.TOKEN_KEY, {
+      expiresIn: "1d",
+    });
   } catch (error) {
     console.error("Session token creation failed");
     return null;
