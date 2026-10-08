@@ -106,6 +106,15 @@ apiRouter.get("/RegisterProduct", async (req, res) => {
   if (!product) {
     return res.sendStatus(404);
   }
+
+  const productIsActive =
+    product.active === true ||
+    product.active === "true" ||
+    Number(product.active) === 1;
+  if (!productIsActive) {
+    return res.sendStatus(409);
+  }
+
   if (!Number.isFinite(Number(product.price)) || userPrice < Number(product.price)) {
     return res.sendStatus(400);
   }
