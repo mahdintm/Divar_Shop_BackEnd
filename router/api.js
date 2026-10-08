@@ -73,6 +73,9 @@ const requireAdmin = async (req, res, next) => {
     "select acl from Users where id = ?",
     [userId]
   );
+  if (adminUsers === undefined) {
+    return res.sendStatus(500);
+  }
   if (!Array.isArray(adminUsers) || adminUsers.length === 0) {
     return res.sendStatus(401);
   }
