@@ -3,6 +3,7 @@ import cors from "cors";
 import { router } from "./router/router.js";
 import cookieParser from "cookie-parser";
 import "./ldap/ldap.js";
+import { datastoreReady } from "./db/datastore.js";
 const app = express();
 // app.use((req, res, next) => {
 //   req.hostname == "192.168.8.111" ? next() : res.send("Access Denied");
@@ -29,4 +30,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(router);
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`Server running in BackEnd mode on port ${PORT}`));
+
+const startServer = async () => {
+  await datastoreReady;
+  app.listen(PORT, () => console.log(`Server running in BackEnd mode on port ${PORT}`));
+};
+
+startServer().catch(() => {
+  process.exit(1);
+});

@@ -51,9 +51,7 @@ async function start() {
     Setting.push(element);
   });
 }
-start().catch((error) => {
-  console.error("Datastore initialization failed:", error);
-});
+export const datastoreReady = start();
 
 export class Users {
   static new_id = () => {};
