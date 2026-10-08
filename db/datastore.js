@@ -90,7 +90,8 @@ export class Product_Class {
         return true;
       }
     }
-    return false;
+    Product_data.push(data);
+    return true;
   };
   static getAllProducts = async () => {
     return Product_data;
