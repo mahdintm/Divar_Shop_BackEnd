@@ -141,6 +141,16 @@ accountRouter.post("/login", async (req, res) => {
   }
 });
 accountRouter.post("/logout", (req, res) => {
+  const cookie = req.cookies?.jwt;
+  try {
+    const claims = jwt.verify(cookie, config.TOKEN_KEY);
+    if (claims?.id) {
+      delete users[claims.id];
+    }
+  } catch (error) {
+    // The session is already invalid; continue clearing the browser cookie.
+  }
+
   res.cookie("jwt", "", { maxAge: 0 });
 
   res.send({
