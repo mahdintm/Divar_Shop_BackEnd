@@ -4,6 +4,7 @@ import { Category_data, Product_Class, Product_data, Settings } from "../db/data
 import { sql, sql_arr } from "../db/mysql.js";
 export const apiRouter = express.Router();
 const config = process.env;
+let auctionRunInProgress = false;
 
 apiRouter.get("/sidebar", (req, res) => {
   res.send(Category_data);
@@ -221,6 +222,11 @@ apiRouter.get("/getAllUsers", async (req, res) => {
 });
 
 apiRouter.get("/RunMozaiede", async (req, res) => {
+  if (auctionRunInProgress) {
+    return res.sendStatus(409);
+  }
+  auctionRunInProgress = true;
+
   try {
     const Suggestions___ = await sql_arr("select * from Suggestions");
     if (Suggestions___ === undefined) {
@@ -268,6 +274,8 @@ apiRouter.get("/RunMozaiede", async (req, res) => {
   } catch (error) {
     console.error("Auction processing failed:", error);
     res.send([false]);
+  } finally {
+    auctionRunInProgress = false;
   }
 });
 apiRouter.get("/count_product_register", async (req, res) => {
