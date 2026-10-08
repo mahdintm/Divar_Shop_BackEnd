@@ -1,6 +1,6 @@
 import express from "express";
 import jwt from "jsonwebtoken";
-import { Category_data, Product_Class, Product_data, Settings } from "../db/datastore.js";
+import { Category_data, Product_Class, Product_data, Settings, users } from "../db/datastore.js";
 import { sql, sql_arr } from "../db/mysql.js";
 export const apiRouter = express.Router();
 const config = process.env;
@@ -53,7 +53,11 @@ const getAuthenticatedUserId = (req) => {
   try {
     const cookie = req.cookies?.jwt;
     const claims = jwt.verify(cookie, config.TOKEN_KEY);
-    return claims?.id ?? null;
+    const userId = claims?.id ?? null;
+    if (!userId || !users[userId]) {
+      return null;
+    }
+    return userId;
   } catch (error) {
     return null;
   }
