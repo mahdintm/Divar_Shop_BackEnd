@@ -37,7 +37,7 @@ apiRouter.get("/category", (req, res) => {
 });
 apiRouter.get("/user", async (req, res) => {
   const users = await sql_arr(
-    "select id, username, email, acl, profile, firstname, lastname, phonenumber, ldp, firstLogin, lastLogin from Users where id = ?",
+    "select id, profile from Users where id = ?",
     [req.query.id]
   );
   if (users === undefined) {
