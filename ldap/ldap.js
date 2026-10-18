@@ -1,6 +1,24 @@
 import "dotenv/config";
 import ActiveDirectory from "activedirectory";
 
+const escapeLDAPFilterValue = (value) =>
+  String(value).replace(/[\u0000()*\\]/g, (character) => {
+    switch (character) {
+      case "\u0000":
+        return "\\00";
+      case "(":
+        return "\\28";
+      case ")":
+        return "\\29";
+      case "*":
+        return "\\2a";
+      case "\\":
+        return "\\5c";
+      default:
+        return character;
+    }
+  });
+
 const config = {
   url: process.env.LDAP_URL,
   baseDN: process.env.LDAP_BASE_DN,
@@ -13,7 +31,7 @@ const ad = new ActiveDirectory(config);
 export class LDAP {
   static authenticate = (user, pass) => {
     return new Promise((resolve, reject) => {
-      ad.find(`mail=${user}`, function (err, results) {
+      ad.find(`mail=${escapeLDAPFilterValue(user)}`, function (err, results) {
         if (err || !results) {
           console.error("LDAP user lookup failed");
           return reject(err || new Error("LDAP user lookup returned no results"));
